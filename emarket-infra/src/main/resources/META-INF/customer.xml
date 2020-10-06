@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<entity-mappings
+        xmlns="http://xmlns.jcp.org/xml/ns/persistence/orm"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence/orm
+                  http://xmlns.jcp.org/xml/ns/persistence/orm_2_1.xsd"
+        version="2.1"
+>
+    <access>FIELD</access>
+    <entity class="com.demo.web.emarket.domain.customer.Customer">
+        <table name="CUSTOMER"/>
+        <attributes>
+            <element-collection name="orders">
+                <attribute-override name="value">
+                    <column name="ORDER_ID"/>
+                </attribute-override>
+                <collection-table name="CUSTOMER_ORDER">
+                    <join-column name="CUSTOMER_ID"/>
+                </collection-table>
+            </element-collection>
+            <embedded name="name"/>
+            <embedded name="address"/>
+            <embedded name="creditCard"/>
+            <embedded name="phoneNumber"/>
+            <embedded name="historicData"/>
+        </attributes>
+    </entity>
+
+
+    <embeddable class="com.demo.web.emarket.domain.customer.NamePart">
+        <attributes>
+            <basic name="value">
+                <column name="NAME_VALUE"/>
+            </basic>
+        </attributes>
+    </embeddable>
+    <embeddable class="com.demo.web.emarket.domain.customer.CustomerName">
+        <attributes>
+            <embedded name="firstName">
+                <attribute-override name="value">
+                    <column name="FIRST_NAME"/>
+                </attribute-override>
+            </embedded>
+            <embedded name="lastName">
+                <attribute-override name="value">
+                    <column name="LAST_NAME"/>
+                </attribute-override>
+            </embedded>
+        </attributes>
+    </embeddable>
+    <embeddable class="com.demo.web.emarket.domain.Address">
+        <attributes>
+            <basic name="streetName">
+                <column name="STREET_NAME"/>
+            </basic>
+            <basic name="streetNumber">
+                <column name="STREET_NUMBER"/>
+            </basic>
+        </attributes>
+    </embeddable>
+    <embeddable class="com.demo.web.emarket.domain.customer.CreditCard">
+        <attributes>
+            <basic name="cardNumber">
+                <column name="CARD_NUMBER"/>
+            </basic>
+        </attributes>
+    </embeddable>
+    <embeddable class="com.demo.web.emarket.domain.customer.HistoricData">
+        <attributes>
+            <basic name="registrationDate">
+                <column name="REGISTRATION_DATE"/>
+            </basic>
+            <basic name="lastLoginDate">
+                <column name="LAST_LOGIN_DATE"/>
+            </basic>
+        </attributes>
+    </embeddable>
+    <embeddable class="com.demo.web.emarket.domain.customer.PhoneNumber">
+        <attributes>
+            <basic name="value">
+                <column name="PHONE_NUMBER"/>
+            </basic>
+        </attributes>
+    </embeddable>
+</entity-mappings>
