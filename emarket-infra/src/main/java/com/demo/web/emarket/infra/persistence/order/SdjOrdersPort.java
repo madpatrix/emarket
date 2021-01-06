@@ -3,7 +3,7 @@ package com.demo.web.emarket.infra.persistence.order;
 import com.demo.web.emarket.domain.UniqueId;
 import com.demo.web.emarket.domain.ddd.DDD;
 import com.demo.web.emarket.domain.order.Order;
-import com.demo.web.emarket.domain.order.Orders;
+import com.demo.web.emarket.domain.order.OrdersPort;
 import org.springframework.stereotype.Repository;
 
 import java.util.HashSet;
@@ -11,10 +11,10 @@ import java.util.Set;
 
 @Repository
 @DDD.DomainRepositoryImpl
-public class SdjOrders implements Orders {
+public class SdjOrdersPort implements OrdersPort {
     private final OrdersJpaRepo jpaRepo;
 
-    public SdjOrders(OrdersJpaRepo jpaRepo) {
+    public SdjOrdersPort(OrdersJpaRepo jpaRepo) {
         this.jpaRepo = jpaRepo;
     }
 

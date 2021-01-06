@@ -8,7 +8,7 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 
 @DDD.DomainRepositoryImpl //for tests
-public class InMemoryOrders implements Orders {
+public class InMemoryOrdersPort implements OrdersPort {
     private Set<Order> db = new HashSet<>();
 
 

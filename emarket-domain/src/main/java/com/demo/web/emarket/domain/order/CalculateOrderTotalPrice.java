@@ -4,7 +4,7 @@ import com.demo.web.emarket.domain.UniqueId;
 import com.demo.web.emarket.domain.ddd.DDD;
 import com.demo.web.emarket.domain.product.Price;
 import com.demo.web.emarket.domain.product.Product;
-import com.demo.web.emarket.domain.product.Products;
+import com.demo.web.emarket.domain.product.ProductsPort;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
@@ -17,21 +17,21 @@ import static java.util.stream.Collectors.toMap;
 
 @DDD.DomainService
 public class CalculateOrderTotalPrice {
-    private Orders orders;
-    private Products products;
+    private OrdersPort ordersPort;
+    private ProductsPort productsPort;
 
     @Autowired
-    public CalculateOrderTotalPrice(Orders orders, Products products) {
-        this.orders = orders;
-        this.products = products;
+    public CalculateOrderTotalPrice(OrdersPort ordersPort, ProductsPort productsPort) {
+        this.ordersPort = ordersPort;
+        this.productsPort = productsPort;
     }
 
     public Price totalPriceOfOrder(UniqueId orderId) {
-        Order order = orders.getOrThrow(orderId);
+        Order order = ordersPort.getOrThrow(orderId);
         List<Line> orderLines = order.orderLines();
         Map<UniqueId, Quantity> productIdsQuantities = orderLines.stream()
                 .collect(toMap(Line::productId, Line::quantity));
-        Map<UniqueId, Product> orderProducts = products.findAll(productIdsQuantities.keySet())
+        Map<UniqueId, Product> orderProducts = productsPort.findAll(productIdsQuantities.keySet())
                 .stream().collect(Collectors.toMap(Product::getId, Function.identity()));
 
         return orderLines.stream().reduce(

@@ -10,15 +10,21 @@ import static java.util.Arrays.asList;
 @DDD.ApplicationService
 @ApplicationService
 public class OrderProduct {
-    private final Orders orders;
+    private final OrdersPort ordersPort;
 
-    public OrderProduct(Orders orders) {
-        this.orders = orders;
+    public OrderProduct(OrdersPort ordersPort) {
+        this.ordersPort = ordersPort;
     }
 
     public UniqueId orderProduct(OrderSingleProductCommand orderSingleProductCommand) {
         Line line = new Line(orderSingleProductCommand.getQuantity(), orderSingleProductCommand.getProduct().getId());
         Order newOrder = new Order(asList(line), OrderStatus.INITIATED, orderSingleProductCommand.getCustomerId());
-        return orders.add(newOrder).getId();
+        return ordersPort.add(newOrder).getId();
+    }
+
+
+
+    public Order getOrder(UniqueId id){
+        return ordersPort.getOrThrow(id);
     }
 }

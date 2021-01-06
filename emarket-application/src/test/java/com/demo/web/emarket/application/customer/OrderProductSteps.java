@@ -13,15 +13,15 @@ import cucumber.api.java.en.When;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class OrderProductSteps {
-    private final Orders inMemoryOrders = new InMemoryOrders();
-    private final OrderProduct sut = new OrderProduct(inMemoryOrders); //system under test
+    private final OrdersPort inMemoryOrdersPort = new InMemoryOrdersPort();
+    private final OrderProduct sut = new OrderProduct(inMemoryOrdersPort); //system under test
     private UniqueId newOrderId;
     private Product phone;
 
 
     @Given("^there are no orders for a customer$")
     public void thereAreNoOrdersForACustomer() {
-        assertThat(inMemoryOrders.getAll()).isEmpty();
+        assertThat(inMemoryOrdersPort.getAll()).isEmpty();
     }
 
     @When("^that customer buys a phone with a price of \"([^\"]*)\"$")
@@ -34,9 +34,9 @@ public class OrderProductSteps {
 
     @Then("^there is \"([^\"]*)\" \"([^\"]*)\" phone order for that customer$")
     public void thereIsPhoneOrderForThatCustomer(int noOfExpectedOrders, OrderStatus expectedOrderStatus) {
-        assertThat(inMemoryOrders.getAll()).hasSize(noOfExpectedOrders);
+        assertThat(inMemoryOrdersPort.getAll()).hasSize(noOfExpectedOrders);
 
-        Order newOrder = inMemoryOrders.getOrThrow(newOrderId);
+        Order newOrder = inMemoryOrdersPort.getOrThrow(newOrderId);
         assertThat(newOrder.status()).isEqualTo(expectedOrderStatus);
 
         Line singleOrderLine = newOrder.orderLines().get(0);

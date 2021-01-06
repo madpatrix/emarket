@@ -20,9 +20,9 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.emptySet;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class SdjOrdersLocalIT extends InfraLocalIT {
+public class SdjOrdersPortLocalIT extends InfraLocalIT {
     @Autowired
-    private SdjOrders sut;
+    private SdjOrdersPort sut;
 
     @Autowired
     private OrdersJpaRepo ordersJpaRepo;

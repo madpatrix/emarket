@@ -45,6 +45,7 @@
         <jackson-datatype-jsr310.version>2.9.8</jackson-datatype-jsr310.version>
         <h2.version>1.4.199</h2.version>
         <flyway.version>5.2.4</flyway.version>
+        <org.mapstruct.version>1.4.1.Final</org.mapstruct.version>
     </properties>
 
     <build>
@@ -105,6 +106,13 @@
                             <arg>-Xlint:-serial</arg>
                             <arg>-Werror</arg>
                         </compilerArgs>
+                        <annotationProcessorPaths>
+                            <path>
+                                <groupId>org.mapstruct</groupId>
+                                <artifactId>mapstruct-processor</artifactId>
+                                <version>${org.mapstruct.version}</version>
+                            </path>
+                        </annotationProcessorPaths>
                     </configuration>
                 </plugin>
                 <plugin>
@@ -245,6 +253,12 @@
             <dependency>
                 <groupId>org.hibernate.validator</groupId>
                 <artifactId>hibernate-validator</artifactId>
+            </dependency>
+
+            <dependency>
+                <groupId>org.mapstruct</groupId>
+                <artifactId>mapstruct</artifactId>
+                <version>${org.mapstruct.version}</version>
             </dependency>
 
             <!--Database-->

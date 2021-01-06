@@ -23,6 +23,7 @@ public class Order extends BaseAggregateRoot<Order, UniqueId> {
         validate(this);
     }
 
+
     public List<Line> orderLines() {
         return unmodifiableList(orderLines);
     }

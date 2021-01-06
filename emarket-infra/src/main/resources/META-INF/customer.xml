@@ -10,7 +10,7 @@
     <entity class="com.demo.web.emarket.domain.customer.Customer">
         <table name="CUSTOMER"/>
         <attributes>
-            <element-collection name="orders">
+            <element-collection name="ordersPort">
                 <attribute-override name="value">
                     <column name="ORDER_ID"/>
                 </attribute-override>

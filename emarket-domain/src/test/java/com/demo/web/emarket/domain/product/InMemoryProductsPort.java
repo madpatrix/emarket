@@ -8,7 +8,7 @@ import java.util.Set;
 
 import static java.util.stream.Collectors.toSet;
 
-public class InMemoryProducts implements Products {
+public class InMemoryProductsPort implements ProductsPort {
     private Set<Product> db = new HashSet<>();
     @Override
     public Set<Product> findAll(Set<UniqueId> productIds) {
