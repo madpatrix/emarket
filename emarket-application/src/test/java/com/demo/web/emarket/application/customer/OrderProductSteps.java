@@ -4,17 +4,20 @@ import com.demo.web.emarket.application.order.OrderProduct;
 import com.demo.web.emarket.application.order.OrderSingleProductCommand;
 import com.demo.web.emarket.domain.UniqueId;
 import com.demo.web.emarket.domain.order.*;
+import com.demo.web.emarket.domain.order.event.order.OrderDomainEventHandler;
 import com.demo.web.emarket.domain.product.Price;
 import com.demo.web.emarket.domain.product.Product;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
+import org.mockito.Mockito;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class OrderProductSteps {
     private final OrdersPort inMemoryOrdersPort = new InMemoryOrdersPort();
-    private final OrderProduct sut = new OrderProduct(inMemoryOrdersPort); //system under test
+    private final OrderDomainEventHandler orderDomainEventHandler = Mockito.mock(OrderDomainEventHandler.class);
+    private final OrderProduct sut = new OrderProduct(inMemoryOrdersPort, orderDomainEventHandler); //system under test
     private UniqueId newOrderId;
     private Product phone;
 
