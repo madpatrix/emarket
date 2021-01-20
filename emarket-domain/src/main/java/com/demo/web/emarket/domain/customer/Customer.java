@@ -14,7 +14,6 @@ import java.util.Set;
 public class Customer extends BaseAggregateRoot<Customer, UniqueId> {
     @NotNull
     private CustomerName name;
-    @NotNull
     private Address address;
     private CreditCard creditCard;
     private PhoneNumber phoneNumber;
@@ -31,6 +30,23 @@ public class Customer extends BaseAggregateRoot<Customer, UniqueId> {
         validate(this);
     }
 
+    public Customer(CustomerName name) {
+        super(Customer.class, new UniqueId());
+        this.name = name;
+        validate(this);
+    }
+
+    public CustomerName getName() {
+        return name;
+    }
+
+    public PhoneNumber getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public HistoricData getHistoricData() {
+        return historicData;
+    }
 
     public Customer(CustomerName customerName, @NotNull Address address,
                     PhoneNumber phoneNumber, HistoricData historicData, @NotEmpty Set<UniqueId> orders) {
