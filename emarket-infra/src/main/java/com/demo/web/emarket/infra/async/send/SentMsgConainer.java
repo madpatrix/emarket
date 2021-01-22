@@ -22,12 +22,14 @@ public class SentMsgConainer {
     private Status status;
     private String topic;
 
+    private String originMessage;
 
-    public SentMsgConainer(String transactionId, String msgType, String jsonSerializedMsg, String topic) {
-       this(UUID.randomUUID().toString(), transactionId, msgType, jsonSerializedMsg, LocalDateTime.now(), Status.WAITING_SENDING, topic);
+
+    public SentMsgConainer(String transactionId, String msgType, String jsonSerializedMsg, String topic, String originMessage) {
+       this(UUID.randomUUID().toString(), transactionId, msgType, jsonSerializedMsg, LocalDateTime.now(), Status.WAITING_SENDING, topic, originMessage);
     }
 
-    public SentMsgConainer(String id, String transactionId, String msgType, String jsonSerializedMsg, LocalDateTime creationTime, Status status, String topic) {
+    public SentMsgConainer(String id, String transactionId, String msgType, String jsonSerializedMsg, LocalDateTime creationTime, Status status, String topic, String originMessage) {
         this.id = id;
         this.transactionId = transactionId;
         this.msgType = msgType;
@@ -35,6 +37,7 @@ public class SentMsgConainer {
         this.creationTime = creationTime;
         this.status = status;
         this.topic = topic;
+        this.originMessage = originMessage;
     }
 
     public String getId() {
@@ -65,13 +68,17 @@ public class SentMsgConainer {
         return topic;
     }
 
+    public String getOriginMessage() {
+        return originMessage;
+    }
+
     public SentMsgConainer markAsSent(){
         this.status = Status.SENT;
         return this;
     }
 
     public MsgEnvelope asMsgEnvelope(){
-        return new MsgEnvelope(id, transactionId, msgType, jsonSerializedMsg, creationTime, topic);
+        return new MsgEnvelope(id, transactionId, msgType, jsonSerializedMsg, creationTime, topic, originMessage);
     }
 
     private SentMsgConainer(){}

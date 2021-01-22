@@ -17,6 +17,6 @@ public class CustomerDomainEventProducer {
         customerModel.firstName = customer.getFirstName().getValue();
         customerModel.lastName = customer.getLastName().getValue();
 
-        return new CustomerAdded(customerModel);
+        return new CustomerAdded("999739",customerModel);
     }
 }

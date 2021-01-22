@@ -30,7 +30,8 @@ public class MsgReceptor {
                         msgEnvelope.getMsgType(),
                         msgEnvelope.getJsonSerializedMsg(),
                         msgEnvelope.getCreationTime(),
-                        msgEnvelope.getTopic()
+                        msgEnvelope.getTopic(),
+                        msgEnvelope.getOriginMessage()
                 )).collect(Collectors.toList());
 
         this.receivedMsgStore.addAll(receivedMsgContainers);

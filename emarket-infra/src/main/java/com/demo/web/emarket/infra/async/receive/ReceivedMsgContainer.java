@@ -1,5 +1,7 @@
 package com.demo.web.emarket.infra.async.receive;
 
+import org.apache.kafka.common.protocol.types.Field;
+
 import java.time.LocalDateTime;
 
 public class ReceivedMsgContainer {
@@ -16,8 +18,9 @@ public class ReceivedMsgContainer {
     private LocalDateTime receivedTime;
     private Status status;
     private String topic;
+    private String originMessage;
 
-    public ReceivedMsgContainer(String id, String msgType, String jsonSerializedMsg, LocalDateTime msgCreationTime, LocalDateTime receivedTime, Status status, String topic) {
+    public ReceivedMsgContainer(String id, String msgType, String jsonSerializedMsg, LocalDateTime msgCreationTime, LocalDateTime receivedTime, Status status, String topic, String originMessage) {
         this.id = id;
         this.msgType = msgType;
         this.jsonSerializedMsg = jsonSerializedMsg;
@@ -25,10 +28,11 @@ public class ReceivedMsgContainer {
         this.receivedTime = receivedTime;
         this.status = status;
         this.topic = topic;
+        this.originMessage = originMessage;
     }
 
-    public ReceivedMsgContainer(String id, String msgType, String jsonSerializedMsg, LocalDateTime msgCreationTime, String topic) {
-       this(id, msgType, jsonSerializedMsg, msgCreationTime, LocalDateTime.now(), Status.WAITING_PROCESSING, topic);
+    public ReceivedMsgContainer(String id, String msgType, String jsonSerializedMsg, LocalDateTime msgCreationTime, String topic, String originMessage) {
+       this(id, msgType, jsonSerializedMsg, msgCreationTime, LocalDateTime.now(), Status.WAITING_PROCESSING, topic, originMessage);
     }
 
     public String getId() {
@@ -57,6 +61,10 @@ public class ReceivedMsgContainer {
 
     public String getTopic() {
         return topic;
+    }
+
+    public String getOriginMessage() {
+        return originMessage;
     }
 
     private ReceivedMsgContainer() {

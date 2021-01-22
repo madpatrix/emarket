@@ -4,23 +4,24 @@ import com.demo.web.emarket.domain.ddd.event.DomainEvent;
 import com.demo.web.emarket.domain.order.event.customer.model.CustomerModel;
 import com.demo.web.emarket.domain.order.event.order.model.OrderModel;
 
+import javax.validation.Payload;
 import java.time.LocalDateTime;
 
 public class CustomerAdded extends DomainEvent {
 
     private static final String EVENT_VERSION="1.0";
-    private CustomerModel customerModel;
+    private CustomerModel payload;
 
-    public CustomerAdded(CustomerModel customerModel) {
-        super(EVENT_VERSION, LocalDateTime.now());
-        this.customerModel = customerModel;
+    public CustomerAdded(String idUtilisateur, CustomerModel payload) {
+        super(EVENT_VERSION, LocalDateTime.now(),idUtilisateur, payload.id, payload.numVersionObjet, payload.getClass().getCanonicalName());
+        this.payload = payload;
     }
 
-    public CustomerModel getCustomerModel() {
-        return customerModel;
+    public CustomerModel getPayload() {
+        return payload;
     }
 
     public CustomerAdded() {
-        this(null);
+        this(null, null);
     }
 }

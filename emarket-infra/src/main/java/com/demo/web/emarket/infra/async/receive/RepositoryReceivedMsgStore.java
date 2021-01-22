@@ -22,6 +22,6 @@ public class RepositoryReceivedMsgStore implements ReceivedMsgStore{
 
     @Override
     public void addAll(List<ReceivedMsgContainer> receivedMsgContainerList) {
-        this.receivedMsgContainerRepository.save(receivedMsgContainerList);
+        this.receivedMsgContainerRepository.saveAll(receivedMsgContainerList);
     }
 }

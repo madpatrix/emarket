@@ -8,10 +8,8 @@ import java.time.LocalDateTime;
 public class OrderSingleProduct extends DomainEvent {
 
     private static final String EVENT_VERSION="1.0";
-    private OrderModel orderModel;
 
     public OrderSingleProduct(OrderModel orderModel) {
-        super(EVENT_VERSION, LocalDateTime.now());
-        this.orderModel = orderModel;
+        super(EVENT_VERSION, LocalDateTime.now(), null, null, 1, orderModel.getClass().getCanonicalName());
     }
 }

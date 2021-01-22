@@ -27,12 +27,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
 @Component
-public class StubKafkaClient {
+public class KafkaClientProducer {
 
     private static AtomicLong countSentMsgContainer = new AtomicLong();
     private AtomicBoolean start = new AtomicBoolean(false);
 
-    private Logger logger = LoggerFactory.getLogger(StubKafkaClient.class);
+    private Logger logger = LoggerFactory.getLogger(KafkaClientProducer.class);
 
     @Value("${kafka.hosts}")
     private String hostKafka;
@@ -58,7 +58,7 @@ public class StubKafkaClient {
     private KafkaProducer<String, MsgEnvelope> producer;
     private ScheduledExecutorService scheduledExecutorService;
 
-    public StubKafkaClient(SentMsgState sentMsgState) {
+    public KafkaClientProducer(SentMsgState sentMsgState) {
         this.sentMsgState = sentMsgState;
     }
 
@@ -98,7 +98,7 @@ public class StubKafkaClient {
         this.sentMsgState.resetSendingErrorForAllTopics();
 
         for(String topic: topics){
-            final List<SentMsgConainer> sentMsgConainers = this.sendMsgContainerRepository.findFirst1000ByStatusAndTopic(SentMsgConainer.Status.WAITING_SENDING, topic);
+            final List<SentMsgConainer> sentMsgConainers = this.sendMsgContainerRepository.findFirst1000ByStatusAndTopicOrderByCreationTimeAsc(SentMsgConainer.Status.WAITING_SENDING, topic);
             logger.debug("Found {} SentMsgContainer items with status {} on topic {}", sentMsgConainers.size(), SentMsgConainer.Status.WAITING_SENDING, topic);
 
             for(SentMsgConainer sentMsgConainer: sentMsgConainers){
@@ -124,7 +124,7 @@ public class StubKafkaClient {
                         recordMetadata.partition(),
                         recordMetadata.offset());
 
-                sendMsgContainerRepository.delete(msgEnvelope.getId());
+                sendMsgContainerRepository.deleteById(msgEnvelope.getId());
                 sentMsgState.sent(1);
                 if(countDownLatch != null){
                     countDownLatch.countDown();

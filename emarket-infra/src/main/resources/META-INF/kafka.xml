@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<entity-mappings
+        xmlns="http://xmlns.jcp.org/xml/ns/persistence/orm"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence/orm
+                  http://xmlns.jcp.org/xml/ns/persistence/orm_2_1.xsd"
+        version="2.1"
+>
+    <access>FIELD</access>
+    <entity class="com.demo.web.emarket.infra.async.send.SentMsgConainer">
+        <table name="SENT_MSG_CONTAINER"/>
+        <attributes>
+            <id name="id">
+                <column name="ID"/>
+            </id>
+            <basic name="transactionId">
+                <column name="TRANSACTION_ID"/>
+            </basic>
+            <basic name="msgType">
+                <column name="MSG_TYPE"/>
+            </basic>
+            <basic name="jsonSerializedMsg">
+                <column name="JSON_SERIALIZED_MSG"/>
+            </basic>
+            <basic name="creationTime">
+                <column name="CREATION_TIME"/>
+            </basic>
+            <basic name="status">
+                <enumerated>STRING</enumerated>
+            </basic>
+            <basic name="topic">
+                <column name="TOPIC"/>
+            </basic>
+            <basic name="originMessage">
+                <column name="ORIGIN_MESSAGE"/>
+            </basic>
+        </attributes>
+    </entity>
+
+    <entity class="com.demo.web.emarket.infra.async.receive.ReceivedMsgContainer">
+        <table name="RECEIVED_MSG_CONTAINER"/>
+        <attributes>
+            <id name="id">
+                <column name="ID"/>
+            </id>
+            <basic name="msgType">
+                <column name="MSG_TYPE"/>
+            </basic>
+            <basic name="jsonSerializedMsg">
+                <column name="JSON_SERIALIZED_MSG"/>
+            </basic>
+            <basic name="msgCreationTime">
+                <column name="MSG_CREATION_TIME"/>
+            </basic>
+            <basic name="receivedTime">
+                <column name="RECEIVED_TIME"/>
+            </basic>
+            <basic name="status">
+                <enumerated>STRING</enumerated>
+            </basic>
+            <basic name="topic">
+                <column name="TOPIC"/>
+            </basic>
+            <basic name="originMessage">
+                <column name="ORIGIN_MESSAGE"/>
+            </basic>
+        </attributes>
+    </entity>
+
+</entity-mappings>

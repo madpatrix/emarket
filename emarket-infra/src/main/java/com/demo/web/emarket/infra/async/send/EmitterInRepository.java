@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
@@ -19,6 +20,8 @@ public class EmitterInRepository {
     @Autowired
     private ObjectMapper objectMapper;
     private SentMsgState sentMsgState;
+    @Value("${kafka.origin.message}")
+    private String originMessage;
 
     public EmitterInRepository(SendMsgContainerRepository sendMsgContainerRepository, SentMsgState sentMsgState) {
         this.sendMsgContainerRepository = sendMsgContainerRepository;
@@ -30,7 +33,7 @@ public class EmitterInRepository {
         try {
             final String json = this.objectMapper.writeValueAsString(msg);
             String msgType = msg.getClass().getCanonicalName();
-            SentMsgConainer sentMsgConainer = new SentMsgConainer(transactionId, msgType, json, topic);
+            SentMsgConainer sentMsgConainer = new SentMsgConainer(transactionId, msgType, json, topic, originMessage);
             this.sendMsgContainerRepository.save(sentMsgConainer);
             this.sentMsgState.emit(1);
 

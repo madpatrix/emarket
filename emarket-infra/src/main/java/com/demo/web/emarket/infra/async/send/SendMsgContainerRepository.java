@@ -1,6 +1,10 @@
 package com.demo.web.emarket.infra.async.send;
 
+import com.demo.web.emarket.domain.UniqueId;
+import com.demo.web.emarket.domain.customer.Customer;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import javax.transaction.Transactional;
@@ -8,30 +12,12 @@ import java.util.List;
 
 @Repository
 @Transactional
-public class SendMsgContainerRepository {
+public interface SendMsgContainerRepository extends JpaRepository<SentMsgConainer, String> {
 
-    @Autowired private JdbcSendMsgContainerRepository jdbcSendMsgContainerRepository;
+    long countByStatus(SentMsgConainer.Status status);
 
-    public List<SentMsgConainer> findAll(){
-        return this.jdbcSendMsgContainerRepository.findAll();
-    }
+    List<SentMsgConainer> findFirst1000ByStatusAndTopicOrderByCreationTimeAsc(SentMsgConainer.Status status, String topic);
 
-    public void save(SentMsgConainer sentMsgConainer){
-        this.jdbcSendMsgContainerRepository.save(sentMsgConainer);
-    }
-
-    public void save(List<SentMsgConainer> sentMsgConainers){
-        this.jdbcSendMsgContainerRepository.save(sentMsgConainers);
-    }
-
-    public void delete(String id){ this.jdbcSendMsgContainerRepository.delete(id);}
-
-    public long countByStatus(SentMsgConainer.Status status){ return this.jdbcSendMsgContainerRepository.countByStatus(status);}
-
-    public List<String> findTopicList(){ return this.jdbcSendMsgContainerRepository.findTopicList();}
-
-    public List<SentMsgConainer> findFirst1000ByStatusAndTopic(SentMsgConainer.Status status, String topic){
-        return this.jdbcSendMsgContainerRepository.findFirst1000ByStatusAndTopic(status, topic);
-    }
-
+    @Query("select distinct topic from SentMsgConainer")
+    List<String> findTopicList();
 }
