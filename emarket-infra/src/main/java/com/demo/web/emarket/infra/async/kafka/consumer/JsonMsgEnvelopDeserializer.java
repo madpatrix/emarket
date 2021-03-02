@@ -1,4 +1,4 @@
-package com.demo.web.emarket.infra.async.kafka.skeleton;
+package com.demo.web.emarket.infra.async.kafka.consumer;
 
 import com.demo.web.emarket.infra.async.MsgEnvelope;
 import com.fasterxml.jackson.databind.DeserializationFeature;

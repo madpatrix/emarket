@@ -1,4 +1,4 @@
-package com.demo.web.emarket.infra.async.kafka.stub;
+package com.demo.web.emarket.infra.async.kafka.producer;
 
 import com.demo.web.emarket.infra.async.MsgEnvelope;
 import com.demo.web.emarket.infra.async.send.SendMsgContainerRepository;

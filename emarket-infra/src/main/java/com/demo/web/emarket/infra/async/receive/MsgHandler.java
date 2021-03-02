@@ -1,6 +1,6 @@
 package com.demo.web.emarket.infra.async.receive;
 
-import com.demo.web.emarket.infra.async.kafka.skeleton.SkeletonKafka;
+import com.demo.web.emarket.infra.async.kafka.consumer.KafkaClientConsumer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -17,7 +17,7 @@ public class MsgHandler {
     private static final String CANNOT_REGISTER_ERROR = "Cannot register message after MsgHandler is started.";
 
     @Autowired
-    private SkeletonKafka skeletonKafka;
+    private KafkaClientConsumer kafkaClientConsumer;
     @Autowired
     private ObjectMapper objectMapper;
     @Autowired
@@ -49,7 +49,7 @@ public class MsgHandler {
     public synchronized void start(){
         final ReceivedMsgStore receivedMsgStore = receivedMsgStore();
 
-        this.skeletonKafka.start(
+        this.kafkaClientConsumer.start(
                 new ArrayList<>(topics),
                 this.seekToEndBeforeStart,
                 new MsgReceptor(
@@ -87,7 +87,7 @@ public class MsgHandler {
     }
 
     public synchronized void registerJsonHandler(String topicName, String msgType, JsonHandler handler){
-        if(this.skeletonKafka.isStarted()){
+        if(this.kafkaClientConsumer.isStarted()){
             throw new IllegalStateException(CANNOT_REGISTER_ERROR);
         }
         if(jsonHandlerRegistry.containsKey(msgType)){
@@ -99,7 +99,7 @@ public class MsgHandler {
     }
     @SuppressWarnings("unchecked")
     public synchronized <T> void registerObjectHandler(String topicName, Class<?> msgType, ObjectHandler<T> handler){
-        if(this.skeletonKafka.isStarted()){
+        if(this.kafkaClientConsumer.isStarted()){
             throw new IllegalStateException(CANNOT_REGISTER_ERROR);
         }
         if(objectHandlerRegistry.containsKey(msgType.getCanonicalName())){
@@ -116,7 +116,7 @@ public class MsgHandler {
     }
 
     public synchronized <T> void registerJsonTypeHandler(String topicName, Class<?> msgType, JsonTypeHandler handler){
-        if(this.skeletonKafka.isStarted()){
+        if(this.kafkaClientConsumer.isStarted()){
             throw new IllegalStateException(CANNOT_REGISTER_ERROR);
         }
         if(jsonTypeHandlerRegistry.containsKey(msgType.getCanonicalName())){
@@ -128,7 +128,7 @@ public class MsgHandler {
     }
 
     public synchronized void stop(){
-        this.skeletonKafka.stop();
+        this.kafkaClientConsumer.stop();
         this.msgHandlerFromStore.stop();
         jsonHandlerRegistry.clear();
         jsonTypeHandlerRegistry.clear();

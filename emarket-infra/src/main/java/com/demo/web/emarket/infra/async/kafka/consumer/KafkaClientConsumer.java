@@ -1,22 +1,18 @@
-package com.demo.web.emarket.infra.async.kafka.skeleton;
+package com.demo.web.emarket.infra.async.kafka.consumer;
 
 import com.demo.web.emarket.infra.async.MsgEnvelope;
-import com.demo.web.emarket.infra.async.kafka.stub.JsonMsgEnvelopSerializer;
 import com.demo.web.emarket.infra.async.receive.MsgReceptor;
 import org.apache.kafka.clients.CommonClientConfigs;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
-import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.config.SslConfigs;
 import org.apache.kafka.common.serialization.StringDeserializer;
-import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -27,7 +23,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @Component
-public class SkeletonKafka {
+public class KafkaClientConsumer {
 
 
     @Value("${kafka.hosts}")
