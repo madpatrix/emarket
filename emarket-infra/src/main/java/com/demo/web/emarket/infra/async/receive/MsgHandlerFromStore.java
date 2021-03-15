@@ -4,10 +4,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.transaction.Transactional;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -47,10 +49,26 @@ public class MsgHandlerFromStore {
         }
 
         logger.debug("/ Check for handling Received Msg Container Repository.");
-        final List<ReceivedMsgContainer> receivedMsgContainers = this.receivedMsgStore.pollReceivedMsg();
-        logger.debug("/ Handling {} Received Msg Container.", receivedMsgContainers.size());
+        //final List<ReceivedMsgContainer> receivedMsgContainers = this.receivedMsgStore.pollReceivedMsg();
+        Optional<ReceivedMsgContainer> receivedMsgContainer = pollNextMessage();
+        if(!receivedMsgContainer.isPresent()){
+            return;
+        }
 
-        receivedMsgContainers.forEach(
+        try {
+            jsonHandler(receivedMsgContainer.get());
+            objectHandler(receivedMsgContainer.get());
+            jsonTypeHandler(receivedMsgContainer.get());
+        }catch (Exception e){
+            logger.error(String.format("Error while trying to handle error: $s", receivedMsgContainer.get().getJsonSerializedMsg()), e);
+        }finally {
+            this.receivedMsgStore.onHandled(receivedMsgContainer.get());
+            this.receivedMsgState.handle(1);
+        }
+        countReceivedMsgContainer.addAndGet(1);
+        //logger.debug("/ Handling {} Received Msg Container.", receivedMsgContainers.size());
+
+        /*receivedMsgContainers.forEach(
                 receivedMsgContainer -> {
                     try {
                         jsonHandler(receivedMsgContainer);
@@ -68,7 +86,20 @@ public class MsgHandlerFromStore {
         if(!receivedMsgContainers.isEmpty()){
             countReceivedMsgContainer.addAndGet(receivedMsgContainers.size());
             logger.info("/!\\ Handled {} / all: {}", receivedMsgContainers.size(), countReceivedMsgContainer);
+        }*/
+    }
+
+    @Transactional
+    private Optional<ReceivedMsgContainer> pollNextMessage(){
+        Optional<ReceivedMsgContainer> receivedMsgContainer = this.receivedMsgStore.getNextMsgToConsume();
+        if(receivedMsgContainer.isPresent()){
+            ReceivedMsgContainer blockedMessage = receivedMsgContainer.get();
+            blockedMessage.blockMessage();
+            //save where id=blockedMessage.id and blocked_time = receivedMsgContainer.get().blocked_time
+            return Optional.of(this.receivedMsgStore.add(blockedMessage));
         }
+
+        return receivedMsgContainer;
     }
 
     private void jsonHandler(ReceivedMsgContainer receivedMsgContainer) {

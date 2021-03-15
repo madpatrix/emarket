@@ -1,21 +1,22 @@
-CREATE TABLE "SENT_MSG_CONTAINER" (
-    "ID" VARCHAR2(255 CHAR) PRIMARY KEY,
-    "TRANSACTION_ID" VARCHAR2(255 CHAR),
-    "CREATION_TIME" TIMESTAMP NOT NULL,
-    "JSON_SERIALIZED_MSG" CLOB NOT NULL,
-    "MSG_TYPE" VARCHAR2(255 CHAR) NOT NULL,
-    "STATUS" VARCHAR2(64 CHAR),
-    "TOPIC" VARCHAR2(255 CHAR) NOT NULL,
-    "ORIGIN_MESSAGE" VARCHAR2(255 CHAR) NOT NULL
+create table "sent_msg_container" (
+    "id" varchar primary key,
+    "transaction_id" varchar,
+    "creation_time" timestamp not null,
+    "json_serialized_msg" text not null,
+    "msg_type" varchar not null,
+    "status" varchar,
+    "topic" varchar not null,
+    "origin_message" varchar not null
 );
 
-CREATE TABLE "RECEIVED_MSG_CONTAINER" (
-    "ID" VARCHAR2(255 CHAR) PRIMARY KEY,
-    "JSON_SERIALIZED_MSG" CLOB NOT NULL,
-    "MSG_CREATION_TIME" TIMESTAMP NOT NULL,
-    "MSG_TYPE" VARCHAR2(255 CHAR) NOT NULL,
-    "RECEIVED_TIME" TIMESTAMP(6) NOT NULL,
-    "STATUS" VARCHAR2(64 CHAR),
-    "TOPIC" VARCHAR2(255 CHAR) NOT NULL,
-    "ORIGIN_MESSAGE" VARCHAR2(255 CHAR) NOT NULL
+create table "received_msg_container" (
+    "id" varchar primary key,
+    "json_serialized_msg" text not null,
+    "msg_creation_time" timestamp not null,
+    "msg_type" varchar not null,
+    "received_time" timestamp not null,
+    "status" varchar,
+    "topic" varchar not null,
+    "origin_message" varchar not null,
+    "block_time" timestamp
 );

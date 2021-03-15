@@ -1,24 +1,24 @@
-CREATE TABLE "CUSTOMER" (
-    "ID" VARCHAR2(36 CHAR) PRIMARY KEY,
-    "FIRST_NAME" VARCHAR2(50 CHAR) NOT NULL,
-    "LAST_NAME" VARCHAR2(50 CHAR) NOT NULL,
-    "STREET_NAME" VARCHAR2(200 CHAR),
-    "STREET_NUMBER" NUMBER(3,0),
-    "CARD_NUMBER" VARCHAR2(24 CHAR),
-    "PHONE_NUMBER" VARCHAR2(100 CHAR),
-    "REGISTRATION_DATE" TIMESTAMP,
-    "LAST_LOGIN_DATE" TIMESTAMP,
-    "VERSION" NUMBER(15) NOT NULL
+create table "customer" (
+    "id" varchar primary key,
+    "first_name" varchar not null,
+    "last_name" varchar not null,
+    "street_name" varchar,
+    "street_number" numeric(3,0),
+    "card_number" varchar,
+    "phone_number" varchar,
+    "registration_date" timestamp,
+    "last_login_date" timestamp,
+    "version" numeric(15) not null
 );
 
 
-CREATE TABLE "CUSTOMER_ORDER" (
-    "CUSTOMER_ID" VARCHAR2(36 CHAR) NOT NULL,
-    "ORDER_ID" VARCHAR2(36 CHAR) NOT NULL,
-    CONSTRAINT FK_CUSTOMER
-    FOREIGN KEY (CUSTOMER_ID)
-    REFERENCES CUSTOMER(ID)
+create table "customer_order" (
+    "customer_id" varchar not null,
+    "order_id" varchar not null,
+    constraint fk_customer
+    foreign key ("customer_id")
+    references "customer"("id")
 );
 
-CREATE UNIQUE INDEX CUSTOMER_ORDERS_UNQ_IDX ON
-  CUSTOMER_ORDER(CUSTOMER_ID, ORDER_ID);
+create unique index customer_orders_unq_idx on
+  "customer_order"("customer_id", "order_id");

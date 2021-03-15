@@ -19,8 +19,9 @@ public class ReceivedMsgContainer {
     private Status status;
     private String topic;
     private String originMessage;
+    private LocalDateTime blockTime;
 
-    public ReceivedMsgContainer(String id, String msgType, String jsonSerializedMsg, LocalDateTime msgCreationTime, LocalDateTime receivedTime, Status status, String topic, String originMessage) {
+    public ReceivedMsgContainer(String id, String msgType, String jsonSerializedMsg, LocalDateTime msgCreationTime, LocalDateTime receivedTime, Status status, String topic, String originMessage, LocalDateTime blockTime) {
         this.id = id;
         this.msgType = msgType;
         this.jsonSerializedMsg = jsonSerializedMsg;
@@ -29,10 +30,11 @@ public class ReceivedMsgContainer {
         this.status = status;
         this.topic = topic;
         this.originMessage = originMessage;
+        this.blockTime = blockTime;
     }
 
     public ReceivedMsgContainer(String id, String msgType, String jsonSerializedMsg, LocalDateTime msgCreationTime, String topic, String originMessage) {
-       this(id, msgType, jsonSerializedMsg, msgCreationTime, LocalDateTime.now(), Status.WAITING_PROCESSING, topic, originMessage);
+       this(id, msgType, jsonSerializedMsg, msgCreationTime, LocalDateTime.now(), Status.WAITING_PROCESSING, topic, originMessage, null);
     }
 
     public String getId() {
@@ -65,6 +67,10 @@ public class ReceivedMsgContainer {
 
     public String getOriginMessage() {
         return originMessage;
+    }
+
+    public void blockMessage(){
+        this.blockTime = LocalDateTime.now();
     }
 
     private ReceivedMsgContainer() {
