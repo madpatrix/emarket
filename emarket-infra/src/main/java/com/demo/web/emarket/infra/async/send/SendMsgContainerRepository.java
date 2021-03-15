@@ -1,14 +1,14 @@
 package com.demo.web.emarket.infra.async.send;
 
-import com.demo.web.emarket.domain.UniqueId;
-import com.demo.web.emarket.domain.customer.Customer;
-import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import javax.transaction.Transactional;
-import java.util.List;
+import java.time.LocalDateTime;
 
 @Repository
 @Transactional
@@ -16,8 +16,12 @@ public interface SendMsgContainerRepository extends JpaRepository<SentMsgConaine
 
     long countByStatus(SentMsgConainer.Status status);
 
-    List<SentMsgConainer> findFirst1000ByStatusAndTopicOrderByCreationTimeAsc(SentMsgConainer.Status status, String topic);
+    @Modifying
+    @Query("update SentMsgConainer s set s.blockTime = :blockTime where s.id = :id and s.blockTime = :actualBlockTime")
+    int setMessageBlockTime(@Param("id") String id, @Param("actualBlockTime") LocalDateTime actualBlockTime, @Param("blockTime") LocalDateTime blockTime);
 
-    @Query("select distinct topic from SentMsgConainer")
-    List<String> findTopicList();
+    @Modifying
+    @Query("update SentMsgConainer s set s.blockTime = :blockTime where s.id = :id and s.blockTime is null")
+   int setMessageBlockTimeWhereActualBlockTimeIsNull(@Param("id") String id, @Param("blockTime") LocalDateTime blockTime);
+
 }

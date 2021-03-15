@@ -1,19 +1,19 @@
-CREATE TABLE "ORDER_ITEM" (
-    "ID" VARCHAR2(36 CHAR) PRIMARY KEY,
-    "CUSTOMER_ID" VARCHAR2(36 CHAR) NOT NULL,
-    "STATUS" VARCHAR2(10 CHAR) NOT NULL,
-    "VERSION" NUMBER(15) NOT NULL,
-    CONSTRAINT FK_ORDER_CUSTOMER
-    FOREIGN KEY (CUSTOMER_ID)
-    REFERENCES CUSTOMER(ID)
+create table "order_item" (
+    "id" varchar primary key,
+    "customer_id" varchar not null,
+    "status" varchar not null,
+    "version" numeric(15) not null,
+    constraint fk_order_customer
+    foreign key ("customer_id")
+    references "customer"("id")
 );
 
 
-CREATE TABLE "ORDER_LINE" (
-    "ORDER_ID" VARCHAR2(36 CHAR) NOT NULL,
-    "QUANTITY" NUMBER(10) NOT NULL,
-    "PRODUCT_ID" VARCHAR2(36 CHAR) NOT NULL,
-    CONSTRAINT FK_ORDER_LINE
-    FOREIGN KEY (ORDER_ID)
-    REFERENCES "ORDER_ITEM"(ID)
+create table "order_line" (
+    "order_id" varchar not null,
+    "quantity" numeric(10) not null,
+    "product_id" varchar not null,
+    constraint fk_order_line
+    foreign key ("order_id")
+    references "order_item"("id")
 );

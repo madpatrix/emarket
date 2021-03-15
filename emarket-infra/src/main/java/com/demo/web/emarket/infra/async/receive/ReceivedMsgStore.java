@@ -1,6 +1,7 @@
 package com.demo.web.emarket.infra.async.receive;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ReceivedMsgStore {
 
@@ -13,5 +14,9 @@ public interface ReceivedMsgStore {
 
     List<ReceivedMsgContainer> pollReceivedMsg();
 
+    Optional<ReceivedMsgContainer> getNextMsgToConsume();
+
     void addAll(List<ReceivedMsgContainer> receivedMsgContainerList);
+
+    ReceivedMsgContainer add(ReceivedMsgContainer receivedMsgContainer);
 }

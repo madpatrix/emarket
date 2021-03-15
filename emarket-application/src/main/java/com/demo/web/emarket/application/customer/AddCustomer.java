@@ -4,7 +4,9 @@ import com.demo.web.emarket.application.ApplicationService;
 import com.demo.web.emarket.application.order.OrderSingleProductCommand;
 import com.demo.web.emarket.domain.UniqueId;
 import com.demo.web.emarket.domain.customer.Customer;
+import com.demo.web.emarket.domain.customer.CustomerName;
 import com.demo.web.emarket.domain.customer.Customers;
+import com.demo.web.emarket.domain.customer.NamePart;
 import com.demo.web.emarket.domain.ddd.DDD;
 import com.demo.web.emarket.domain.order.Line;
 import com.demo.web.emarket.domain.order.Order;
@@ -26,10 +28,17 @@ public class AddCustomer {
         this.customerDomainEventHandler = customerDomainEventHandler;
     }
 
-    public UniqueId addCustomer(Customer customer) {
-        this.customerDomainEventHandler.generateCustomerAddedDomainEvent(customer);
-        Customer newCustomer = this.customers.add(customer);
+    public UniqueId addCustomer(Customer customer, int no) {
+        for(int i=0; i<1000; i++) {
+            int number = i+no;
+            this.customerDomainEventHandler.generateCustomerAddedDomainEvent(
+                    new Customer(new CustomerName(
+                            new NamePart(customer.getFirstName().getValue()+number),
+                            new NamePart(customer.getLastName().getValue()+number))));
+            System.out.println("ADDED customer number: " + number);
 
+        }
+        Customer newCustomer = this.customers.add(customer);
         return newCustomer.getId();
     }
 

@@ -17,7 +17,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.transaction.Transactional;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
@@ -51,12 +58,20 @@ public class KafkaClientProducer {
     @Value("${kafka.sslActivate}")
     private String sslActivate;//TODO: replace with boolean
 
+    @Value("${kafka.block.period:15}")
+    private int blockPeriod;
+    @Value("${kafka.block.messages.no:100}")
+    private int blockedMessages;
+    
     @Autowired
     private SendMsgContainerRepository sendMsgContainerRepository;
     private CountDownLatch countDownLatch;
     private SentMsgState sentMsgState;
     private KafkaProducer<String, MsgEnvelope> producer;
     private ScheduledExecutorService scheduledExecutorService;
+
+    @PersistenceContext
+    EntityManager entityManager;
 
     public KafkaClientProducer(SentMsgState sentMsgState) {
         this.sentMsgState = sentMsgState;
@@ -91,30 +106,61 @@ public class KafkaClientProducer {
     }
 
     private void send() {
-        logger.debug("find topic list from tmp table.");
-        List<String> topics = this.sendMsgContainerRepository.findTopicList();
-        logger.trace("topic list from tmp table: ", topics);
+        List<SentMsgConainer> msgToBlock = findNextMessageToSend();
 
-        this.sentMsgState.resetSendingErrorForAllTopics();
+        while(msgToBlock.size()>0) {
+            List<String> blockedTopics = new ArrayList<>();
 
-        for(String topic: topics){
-            final List<SentMsgConainer> sentMsgConainers = this.sendMsgContainerRepository.findFirst1000ByStatusAndTopicOrderByCreationTimeAsc(SentMsgConainer.Status.WAITING_SENDING, topic);
-            logger.debug("Found {} SentMsgContainer items with status {} on topic {}", sentMsgConainers.size(), SentMsgConainer.Status.WAITING_SENDING, topic);
+            List<SentMsgConainer> blockedMessages = new ArrayList<>();
 
-            for(SentMsgConainer sentMsgConainer: sentMsgConainers){
-                if(this.sentMsgState.isSendingErrorForTopic(topic)){
-                    logger.warn("Sending error occurred for topic: {}, skipping to the next topic", topic);
-                    break;
+            for(SentMsgConainer msg : msgToBlock) {
+                if(!blockedTopics.contains(msg.getTopic())) {
+                    int blocked = blockMessage(msg);
+
+                    if (blocked > 0) {
+                        blockedMessages.add(msg);
+                    } else {
+                        blockedTopics.add(msg.getTopic());
+                    }
                 }
-
-                final MsgEnvelope msgEnvelope = sentMsgConainer.asMsgEnvelope();
-
-                producer.send(getProducerRecord(msgEnvelope), getCallback(topic, msgEnvelope));
             }
+
+            if(blockedMessages.size()>0){
+                for(SentMsgConainer msgToSend: blockedMessages) {
+                    sendMsgToKafka(msgToSend);
+                }
+            }
+
+            msgToBlock = findNextMessageToSend();
         }
     }
 
-    private Callback getCallback(String topic, MsgEnvelope msgEnvelope) {
+
+    private void sendMsgToKafka(SentMsgConainer msgToBlock) {
+        final MsgEnvelope msgEnvelope = msgToBlock.asMsgEnvelope();
+        producer.send(getProducerRecord(msgEnvelope), getCallback(msgEnvelope));
+    }
+
+    @Transactional
+    private int blockMessage(SentMsgConainer msgToBlock){
+            if(msgToBlock.getBlockTime() == null){
+              return this.sendMsgContainerRepository.setMessageBlockTimeWhereActualBlockTimeIsNull(msgToBlock.getId(), LocalDateTime.now());
+            }else {
+              return this.sendMsgContainerRepository.setMessageBlockTime(msgToBlock.getId(), msgToBlock.getBlockTime(), LocalDateTime.now());
+            }
+    }
+
+    private List<SentMsgConainer> findNextMessageToSend() {
+        List<SentMsgConainer> msgToBlock = entityManager.createQuery("SELECT s FROM SentMsgConainer s WHERE (s.blockTime is null OR s.blockTime < :blockPeriod) AND s.topic NOT IN (SELECT sm.topic FROM SentMsgConainer sm WHERE sm.blockTime IS NOT NULL AND sm.blockTime > :blockPeriod) ORDER BY s.creationTime ASC", SentMsgConainer.class)
+                .setParameter("blockPeriod", LocalDateTime.now().minusSeconds(blockPeriod))
+                .setMaxResults(blockedMessages)
+                .setFirstResult(0)
+                .getResultList();
+
+        return msgToBlock;
+    }
+    @Transactional
+    private Callback getCallback(MsgEnvelope msgEnvelope) {
         return ((recordMetadata, e) -> {
             if(e==null){
                 logger.info("sent {}: { topic: {}, tx-id: {}, partition: {}, offset: {} }",
@@ -130,10 +176,11 @@ public class KafkaClientProducer {
                     countDownLatch.countDown();
                 }
                 countSentMsgContainer.addAndGet(1);
+
             }else{
-                sentMsgState.setSendingErrorForTopic(topic);
                 logger.error(String.format("Error occurred when tried to send message with id: $s, topic: $s", msgEnvelope.getId(), msgEnvelope.getTopic()), e);
             }
+
         });
     }
 
@@ -159,7 +206,7 @@ public class KafkaClientProducer {
         scheduledExecutorService.scheduleAtFixedRate(
                 this::checkSendMsgContainerRepository,
                 0,
-                10000,
+                1000,
                 TimeUnit.MILLISECONDS
         );
     }

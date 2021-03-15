@@ -17,7 +17,6 @@ import static java.util.Collections.singletonList;
 
 @DDD.ValueObject
 public class NamePart extends BaseValueObject<NamePart> {
-    @Constraint
     private final String value;
 
     public NamePart(String value) {
