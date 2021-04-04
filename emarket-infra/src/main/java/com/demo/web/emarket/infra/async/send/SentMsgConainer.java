@@ -24,12 +24,14 @@ public class SentMsgConainer {
 
     private String originMessage;
 
+    private LocalDateTime blockTime;
+
 
     public SentMsgConainer(String transactionId, String msgType, String jsonSerializedMsg, String topic, String originMessage) {
-       this(UUID.randomUUID().toString(), transactionId, msgType, jsonSerializedMsg, LocalDateTime.now(), Status.WAITING_SENDING, topic, originMessage);
+       this(UUID.randomUUID().toString(), transactionId, msgType, jsonSerializedMsg, LocalDateTime.now(), Status.WAITING_SENDING, topic, originMessage, null);
     }
 
-    public SentMsgConainer(String id, String transactionId, String msgType, String jsonSerializedMsg, LocalDateTime creationTime, Status status, String topic, String originMessage) {
+    public SentMsgConainer(String id, String transactionId, String msgType, String jsonSerializedMsg, LocalDateTime creationTime, Status status, String topic, String originMessage, LocalDateTime blockTime) {
         this.id = id;
         this.transactionId = transactionId;
         this.msgType = msgType;
@@ -38,6 +40,7 @@ public class SentMsgConainer {
         this.status = status;
         this.topic = topic;
         this.originMessage = originMessage;
+        this.blockTime = blockTime;
     }
 
     public String getId() {
@@ -75,6 +78,14 @@ public class SentMsgConainer {
     public SentMsgConainer markAsSent(){
         this.status = Status.SENT;
         return this;
+    }
+
+    public LocalDateTime getBlockTime() {
+        return blockTime;
+    }
+
+    public void blockMessage(){
+        this.blockTime = LocalDateTime.now();
     }
 
     public MsgEnvelope asMsgEnvelope(){

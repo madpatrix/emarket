@@ -17,7 +17,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.transaction.Transactional;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
@@ -58,6 +65,9 @@ public class KafkaClientProducer {
     private KafkaProducer<String, MsgEnvelope> producer;
     private ScheduledExecutorService scheduledExecutorService;
 
+    @PersistenceContext
+    EntityManager entityManager;
+
     public KafkaClientProducer(SentMsgState sentMsgState) {
         this.sentMsgState = sentMsgState;
     }
@@ -89,11 +99,52 @@ public class KafkaClientProducer {
     private void checkSendMsgContainerRepository(){
         send();
     }
-
+    int count = 0;
     private void send() {
+
+        System.out.println(LocalDateTime.now() + " Producing started for: " + count);
+        List<SentMsgConainer> msgToBlock = findNextMessageToSend();
+
+        while(msgToBlock.size()>0) {
+            List<String> blockedTopics = new ArrayList<>();
+
+            List<SentMsgConainer> blockedMessages = new ArrayList<>();
+
+            for(SentMsgConainer msg : msgToBlock) {
+                if(!blockedTopics.contains(msg.getTopic())) {
+                    long start = System.currentTimeMillis();
+                    int blocked = blockMessage(msg);
+                    System.out.println("Time to block 1 msg: "+ (System.currentTimeMillis()-start));
+                    if (blocked > 0) {
+                        blockedMessages.add(msg);
+                    } else {
+                        blockedTopics.add(msg.getTopic());
+                    }
+                }
+            }
+
+            if(blockedMessages.size()>0){
+                for(SentMsgConainer msgToSend: blockedMessages) {
+                    sendMsgToKafka(msgToSend, count);
+                }
+            }
+
+            msgToBlock = findNextMessageToSend();
+        }
+        count++;
+        /*try {
+            TimeUnit.SECONDS.sleep(60);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }*/
+
+        /*
         logger.debug("find topic list from tmp table.");
         List<String> topics = this.sendMsgContainerRepository.findTopicList();
         logger.trace("topic list from tmp table: ", topics);
+        //TESTING
+        List<String> topicsToSearch = this.sendMsgContainerRepository.findDistinctTopicByBlockTimeIsNullOrBlockTimeLessThan(LocalDateTime.now());
+        this.sendMsgContainerRepository.findFirstByTopicInAndBlockTimeIsNullOrTopicInAndBlockTimeLessThanOrderByCreationTimeDesc(topicsToSearch,topicsToSearch, LocalDateTime.now());
 
         this.sentMsgState.resetSendingErrorForAllTopics();
 
@@ -112,9 +163,39 @@ public class KafkaClientProducer {
                 producer.send(getProducerRecord(msgEnvelope), getCallback(topic, msgEnvelope));
             }
         }
+        */
     }
 
-    private Callback getCallback(String topic, MsgEnvelope msgEnvelope) {
+
+    private void sendMsgToKafka(SentMsgConainer msgToBlock, int count) {
+        final MsgEnvelope msgEnvelope = msgToBlock.asMsgEnvelope();
+        System.out.println(LocalDateTime.now() + " sending to kafka: "+count);
+        producer.send(getProducerRecord(msgEnvelope), getCallback(msgToBlock.getTopic(), msgEnvelope, count));
+    }
+
+    @Transactional
+    private int blockMessage(SentMsgConainer msgToBlock){
+            if(msgToBlock.getBlockTime() == null){
+              return this.sendMsgContainerRepository.setMessageBlockTimeWhereActualBlockTimeIsNull(msgToBlock.getId(), LocalDateTime.now());
+            }else {
+              return this.sendMsgContainerRepository.setMessageBlockTime(msgToBlock.getId(), msgToBlock.getBlockTime(), LocalDateTime.now());
+            }
+    }
+
+    private List<SentMsgConainer> findNextMessageToSend() {
+        long start = System.currentTimeMillis();
+        //List<SentMsgConainer> msgToBlock = this.sendMsgContainerRepository.findMessagesToSend(LocalDateTime.now().minusSeconds(5), 1000);
+        List<SentMsgConainer> msgToBlock = entityManager.createQuery("SELECT s FROM SentMsgConainer s WHERE (s.blockTime is null OR s.blockTime < :nowMinus5Sec) AND s.topic NOT IN (SELECT sm.topic FROM SentMsgConainer sm WHERE sm.blockTime IS NOT NULL AND sm.blockTime > :nowMinus5Sec) ORDER BY s.creationTime ASC", SentMsgConainer.class)
+                .setParameter("nowMinus5Sec", LocalDateTime.now().minusSeconds(5))
+                .setMaxResults(10)
+                .setFirstResult(0)
+                .getResultList();
+        System.out.println("Time to find 1 msg: "+ (System.currentTimeMillis()-start));
+        return msgToBlock;
+    }
+    @Transactional
+    private Callback getCallback(String topic, MsgEnvelope msgEnvelope, int count) {
+        System.out.println(LocalDateTime.now() + " Callback send to kafka: "+count);
         return ((recordMetadata, e) -> {
             if(e==null){
                 logger.info("sent {}: { topic: {}, tx-id: {}, partition: {}, offset: {} }",
@@ -130,10 +211,12 @@ public class KafkaClientProducer {
                     countDownLatch.countDown();
                 }
                 countSentMsgContainer.addAndGet(1);
+
             }else{
                 sentMsgState.setSendingErrorForTopic(topic);
                 logger.error(String.format("Error occurred when tried to send message with id: $s, topic: $s", msgEnvelope.getId(), msgEnvelope.getTopic()), e);
             }
+            System.out.println(LocalDateTime.now() + " Producing ended for: "+ count);
         });
     }
 
@@ -159,7 +242,7 @@ public class KafkaClientProducer {
         scheduledExecutorService.scheduleAtFixedRate(
                 this::checkSendMsgContainerRepository,
                 0,
-                10000,
+                1000,
                 TimeUnit.MILLISECONDS
         );
     }

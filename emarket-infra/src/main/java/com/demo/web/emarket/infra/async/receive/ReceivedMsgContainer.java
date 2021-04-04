@@ -69,6 +69,10 @@ public class ReceivedMsgContainer {
         return originMessage;
     }
 
+    public LocalDateTime getBlockTime() {
+        return blockTime;
+    }
+
     public void blockMessage(){
         this.blockTime = LocalDateTime.now();
     }

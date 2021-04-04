@@ -34,6 +34,9 @@
             <basic name="originMessage">
                 <column name="ORIGIN_MESSAGE"/>
             </basic>
+            <basic name="blockTime">
+                <column name="BLOCK_TIME"/>
+            </basic>
         </attributes>
     </entity>
 

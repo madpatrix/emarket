@@ -6,7 +6,8 @@ create table "sent_msg_container" (
     "msg_type" varchar not null,
     "status" varchar,
     "topic" varchar not null,
-    "origin_message" varchar not null
+    "origin_message" varchar not null,
+    "block_time" timestamp
 );
 
 create table "received_msg_container" (

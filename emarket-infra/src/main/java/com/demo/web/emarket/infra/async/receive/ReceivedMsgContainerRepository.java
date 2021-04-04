@@ -14,5 +14,6 @@ public interface ReceivedMsgContainerRepository extends JpaRepository<ReceivedMs
    List<ReceivedMsgContainer> findFirst1000ByStatus(ReceivedMsgContainer.Status status);
 
    Optional<ReceivedMsgContainer> findFirstByBlockTimeIsNullOrBlockTimeLessThanOrderByMsgCreationTimeDesc(LocalDateTime period);
+
 }
 

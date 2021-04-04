@@ -23,7 +23,11 @@ public class CustomerResource {
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> addCustomer(@RequestBody CustomerRepresentation representation){
-        UniqueId uniqueId = this.addCustomer.addCustomer(representation.toDomain());
-        return ResponseEntity.ok(uniqueId.getValue());
+        //UniqueId uniqueId = this.addCustomer.addCustomer(representation.toDomain());
+        for(int i=0; i<10000; i+=1000){
+            this.addCustomer.addCustomer(representation.toDomain(), i);
+            System.out.println("ADDED "+ i + " no of customer number!");
+        }
+        return ResponseEntity.ok("ok");
     }
 }
