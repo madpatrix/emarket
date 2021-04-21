@@ -37,40 +37,49 @@
             <basic name="blockTime">
                 <column name="BLOCK_TIME"/>
             </basic>
+            <basic name="versionSchema">
+                <column name="VERSION_SCHEMA"/>
+            </basic>
+            <basic name="idUtilisateur">
+                <column name="ID_UTILISATEUR"/>
+            </basic>
+            <basic name="idObjet">
+                <column name="ID_OBJET"/>
+            </basic>
+            <basic name="numVersionObjet">
+                <column name="NUM_VERSION_OBJET"/>
+            </basic>
         </attributes>
     </entity>
 
-    <entity class="com.demo.web.emarket.infra.async.receive.ReceivedMsgContainer">
-        <table name="RECEIVED_MSG_CONTAINER"/>
+    <entity class="com.demo.web.emarket.infra.async.receive.ReceivedUlt">
+        <table name="RECEIVED_ULT"/>
         <attributes>
-            <id name="id">
-                <column name="ID"/>
-            </id>
-            <basic name="msgType">
-                <column name="MSG_TYPE"/>
+            <embedded-id name="id"/>
+            <basic name="ulid">
+                <column name="ULID"/>
             </basic>
-            <basic name="jsonSerializedMsg">
-                <column name="JSON_SERIALIZED_MSG"/>
+            <basic name="retriesNo">
+                <column name="RETRIES_NO"/>
             </basic>
-            <basic name="msgCreationTime">
-                <column name="MSG_CREATION_TIME"/>
+            <basic name="ts">
+                <column name="TS"/>
             </basic>
-            <basic name="receivedTime">
-                <column name="RECEIVED_TIME"/>
-            </basic>
-            <basic name="status">
-                <enumerated>STRING</enumerated>
-            </basic>
-            <basic name="topic">
-                <column name="TOPIC"/>
-            </basic>
-            <basic name="originMessage">
-                <column name="ORIGIN_MESSAGE"/>
-            </basic>
-            <basic name="blockTime">
-                <column name="BLOCK_TIME"/>
+            <basic name="msgOffset">
+                <column name="MSG_OFFSET"/>
             </basic>
         </attributes>
     </entity>
+
+    <embeddable class="com.demo.web.emarket.infra.async.receive.ReceivedUltId">
+        <attributes>
+            <basic name="topic">
+                <column name="TOPIC"/>
+            </basic>
+            <basic name="partition">
+                <column name="PARTITION"/>
+            </basic>
+        </attributes>
+    </embeddable>
 
 </entity-mappings>

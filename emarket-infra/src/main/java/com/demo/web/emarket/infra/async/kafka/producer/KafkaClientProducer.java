@@ -22,10 +22,7 @@ import javax.persistence.PersistenceContext;
 import javax.transaction.Transactional;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Properties;
+import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -156,7 +153,7 @@ public class KafkaClientProducer {
                 .setMaxResults(blockedMessages)
                 .setFirstResult(0)
                 .getResultList();
-
+        Collections.sort(msgToBlock);
         return msgToBlock;
     }
     @Transactional

@@ -1,5 +1,6 @@
 package com.demo.web.emarket.infra.async.send;
 
+import com.demo.web.emarket.domain.ddd.event.DomainEvent;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
@@ -33,7 +34,8 @@ public class EmitterInRepository {
         try {
             final String json = this.objectMapper.writeValueAsString(msg);
             String msgType = msg.getClass().getCanonicalName();
-            SentMsgConainer sentMsgConainer = new SentMsgConainer(transactionId, msgType, json, topic, originMessage);
+            DomainEvent domainEvent = safeCast(msg, DomainEvent.class);
+            SentMsgConainer sentMsgConainer = new SentMsgConainer(transactionId, msgType, json, topic, originMessage, domainEvent.getEventVersion(), domainEvent.getIdUtilisateur(), domainEvent.getIdObjet(), domainEvent.getNumVersionObjet());
             this.sendMsgContainerRepository.save(sentMsgConainer);
             this.sentMsgState.emit(1);
 
@@ -42,5 +44,9 @@ public class EmitterInRepository {
         }catch (JsonProcessingException e){
             throw new RuntimeException(e);
         }
+    }
+
+    private static <T> T safeCast(Object o, Class<T> clazz) {
+        return clazz != null && clazz.isInstance(o) ? clazz.cast(o) : null;
     }
 }

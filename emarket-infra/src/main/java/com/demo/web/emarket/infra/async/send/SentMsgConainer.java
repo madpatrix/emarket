@@ -1,11 +1,19 @@
 package com.demo.web.emarket.infra.async.send;
 
+import com.demo.web.emarket.domain.ddd.ULID;
 import com.demo.web.emarket.infra.async.MsgEnvelope;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 
-public class SentMsgConainer {
+public class SentMsgConainer implements Comparable<SentMsgConainer>{
+
+    @Override
+    public int compareTo(SentMsgConainer o) {
+        if (getId() == null || o.getId() == null) {
+            return 0;
+        }
+        return getId().compareTo(o.getId());
+    }
 
     public enum Status{
         WAITING_SENDING,
@@ -26,12 +34,17 @@ public class SentMsgConainer {
 
     private LocalDateTime blockTime;
 
+    private String versionSchema;
+    private String idUtilisateur;
+    private String idObjet;
+    private int numVersionObjet;
 
-    public SentMsgConainer(String transactionId, String msgType, String jsonSerializedMsg, String topic, String originMessage) {
-       this(UUID.randomUUID().toString(), transactionId, msgType, jsonSerializedMsg, LocalDateTime.now(), Status.WAITING_SENDING, topic, originMessage, null);
+
+    public SentMsgConainer(String transactionId, String msgType, String jsonSerializedMsg, String topic, String originMessage, String versionSchema, String idUtilisateur, String idObjet, int numVersionObjet) {
+       this(new ULID().nextULID(), transactionId, msgType, jsonSerializedMsg, LocalDateTime.now(), Status.WAITING_SENDING, topic, originMessage, null, versionSchema, idUtilisateur, idObjet, numVersionObjet);
     }
 
-    public SentMsgConainer(String id, String transactionId, String msgType, String jsonSerializedMsg, LocalDateTime creationTime, Status status, String topic, String originMessage, LocalDateTime blockTime) {
+    public SentMsgConainer(String id, String transactionId, String msgType, String jsonSerializedMsg, LocalDateTime creationTime, Status status, String topic, String originMessage, LocalDateTime blockTime, String versionSchema, String idUtilisateur, String idObjet, int numVersionObjet) {
         this.id = id;
         this.transactionId = transactionId;
         this.msgType = msgType;
@@ -41,6 +54,26 @@ public class SentMsgConainer {
         this.topic = topic;
         this.originMessage = originMessage;
         this.blockTime = blockTime;
+        this.versionSchema = versionSchema;
+        this.idUtilisateur = idUtilisateur;
+        this.idObjet = idObjet;
+        this.numVersionObjet = numVersionObjet;
+    }
+
+    public String getVersionSchema() {
+        return versionSchema;
+    }
+
+    public String getIdUtilisateur() {
+        return idUtilisateur;
+    }
+
+    public String getIdObjet() {
+        return idObjet;
+    }
+
+    public int getNumVersionObjet() {
+        return numVersionObjet;
     }
 
     public String getId() {
@@ -89,7 +122,7 @@ public class SentMsgConainer {
     }
 
     public MsgEnvelope asMsgEnvelope(){
-        return new MsgEnvelope(id, transactionId, msgType, jsonSerializedMsg, creationTime, topic, originMessage);
+        return new MsgEnvelope(id, transactionId, msgType, jsonSerializedMsg, creationTime, topic, originMessage, versionSchema, idUtilisateur, idObjet, numVersionObjet);
     }
 
     private SentMsgConainer(){}

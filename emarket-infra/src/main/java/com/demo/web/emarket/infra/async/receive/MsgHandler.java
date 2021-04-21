@@ -20,10 +20,6 @@ public class MsgHandler {
     private KafkaClientConsumer kafkaClientConsumer;
     @Autowired
     private ObjectMapper objectMapper;
-    @Autowired
-    private ReceivedMsgContainerRepository receivedMsgContainerRepository;
-    @Autowired
-    private ReceivedMsgState receivedMsgState;
 
     private MsgHandlerFromStore msgHandlerFromStore;
 
@@ -34,57 +30,20 @@ public class MsgHandler {
     private static Map<String, JsonTypeHandler> jsonTypeHandlerRegistry = new ConcurrentHashMap<>();
 
     private boolean seekToEndBeforeStart = false;
-    private ReceivedMsgStore.StoreType storeType;
-
-    public synchronized MsgHandler seekToEndBeforeStart(boolean seekToEndBeforeStart){
-        this.seekToEndBeforeStart = seekToEndBeforeStart;
-        return this;
-    }
-
-    public synchronized MsgHandler storeType(ReceivedMsgStore.StoreType storeType){
-        this.storeType = storeType;
-        return this;
-    }
 
     public synchronized void start(){
-        final ReceivedMsgStore receivedMsgStore = receivedMsgStore();
-
         this.kafkaClientConsumer.start(
                 new ArrayList<>(topics),
-                this.seekToEndBeforeStart,
-                new MsgReceptor(
-                        receivedMsgState,
-                        receivedMsgStore
-                )
+                this.seekToEndBeforeStart
         );
-        this.msgHandlerFromStore = new MsgHandlerFromStore(objectMapper, receivedMsgState, receivedMsgStore);
+        this.msgHandlerFromStore = new MsgHandlerFromStore(objectMapper);
 
         this.msgHandlerFromStore.registerJsonHandler(jsonHandlerRegistry);
         this.msgHandlerFromStore.registerJsonTypeHandler(jsonTypeHandlerRegistry);
         this.msgHandlerFromStore.registerObjectHandler(objectHandlerRegistry);
 
-        this.msgHandlerFromStore.start();
     }
 
-    private ReceivedMsgStore receivedMsgStore() {
-        if(this.storeType == null){
-            throw new IllegalArgumentException("storeType is mandatory.");
-        }
-
-        ReceivedMsgStore receivedMsgStore;
-        switch (this.storeType){
-            case QUEUE_STORE:
-                receivedMsgStore = new QueueReceivedMsgStore();
-                break;
-            case REPOSITORY_STORE:
-                receivedMsgStore = new RepositoryReceivedMsgStore(receivedMsgContainerRepository);
-                break;
-            default:
-                throw new IllegalArgumentException(String.format("storeType not recognized: %s", this.storeType));
-        }
-
-        return receivedMsgStore;
-    }
 
     public synchronized void registerJsonHandler(String topicName, String msgType, JsonHandler handler){
         if(this.kafkaClientConsumer.isStarted()){
@@ -129,7 +88,6 @@ public class MsgHandler {
 
     public synchronized void stop(){
         this.kafkaClientConsumer.stop();
-        this.msgHandlerFromStore.stop();
         jsonHandlerRegistry.clear();
         jsonTypeHandlerRegistry.clear();
         objectHandlerRegistry.clear();

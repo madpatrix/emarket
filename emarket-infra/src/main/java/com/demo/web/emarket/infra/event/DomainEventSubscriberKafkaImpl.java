@@ -20,7 +20,7 @@ public class DomainEventSubscriberKafkaImpl {
     private MsgHandler msgHandler;
 
     public void init(){
-        this.msgHandler.storeType(ReceivedMsgStore.StoreType.REPOSITORY_STORE).start();
+        this.msgHandler.start();
     }
 
     public void destroy(){
